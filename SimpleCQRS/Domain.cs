@@ -7,7 +7,9 @@ namespace SimpleCQRS
     {
         private bool _activated;
         private Guid _id;
+        private int _count = 0;
 
+        #region Apply events
         private void Apply(InventoryItemCreated e)
         {
             _id = e.Id;
@@ -19,6 +21,17 @@ namespace SimpleCQRS
             _activated = false;
         }
 
+        private void Apply(ItemsRemovedFromInventory e)
+        {
+            _count -= e.Count;
+        }
+
+        private void Apply(ItemsCheckedInToInventory e)
+        {
+            _count += e.Count;
+        }
+        #endregion
+
         public void ChangeName(string newName)
         {
             if (string.IsNullOrEmpty(newName)) throw new ArgumentException("newName");
@@ -27,20 +40,29 @@ namespace SimpleCQRS
 
         public void Remove(int count)
         {
-            if (count <= 0) throw new InvalidOperationException("cant remove negative count from inventory");
+            if (count <= 0) 
+                throw new InvalidOperationException("can't remove negative count from inventory");
+            
+            if (count > _count)
+                throw new InvalidOperationException(string.Format("only {0} items in stock, cannot remove {1} items", _count, count));
+            
             ApplyChange(new ItemsRemovedFromInventory(_id, count));
         }
 
 
         public void CheckIn(int count)
         {
-            if(count <= 0) throw new InvalidOperationException("must have a count greater than 0 to add to inventory");
+            if(count <= 0) 
+                throw new InvalidOperationException("must have a count greater than 0 to add to inventory");
+
             ApplyChange(new ItemsCheckedInToInventory(_id, count));
         }
 
         public void Deactivate()
         {
-            if(!_activated) throw new InvalidOperationException("already deactivated");
+            if(!_activated) 
+                throw new InvalidOperationException("already deactivated");
+
             ApplyChange(new InventoryItemDeactivated(_id));
         }
 
