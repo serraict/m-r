@@ -85,8 +85,27 @@ namespace CQRSGui.Controllers
         [HttpPost]
         public ActionResult Remove(Guid id, int number, int version)
         {
+            var model = _readmodel.GetInventoryItemDetails(id);
+
+            ValidateForRemoval(model, number);
+
+            if(!ModelState.IsValid)
+            {
+                ViewData.Model = model;
+                return View();
+            }
+
+
             _bus.Send(new RemoveItemsFromInventory(id, number, version));
             return RedirectToAction("Index");
+        }
+
+        private void ValidateForRemoval(InventoryItemDetailsDto item, int numberToRemove)
+        {
+            if(numberToRemove > item.CurrentCount)
+            {
+                ModelState.AddModelError("Number", "You cannot check out more items than currently are in stock.");
+            }
         }
     }
 }
