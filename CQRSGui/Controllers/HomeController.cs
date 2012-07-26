@@ -72,6 +72,15 @@ namespace CQRSGui.Controllers
         [HttpPost]
         public ActionResult CheckIn(Guid id, int number, int version)
         {
+            var model = _readmodel.GetInventoryItemDetails(id);
+            ValidateForCheckIn(model, number);
+
+            if (!ModelState.IsValid)
+            {
+                ViewData.Model = model;
+                return View();
+            }
+
             _bus.Send(new CheckInItemsToInventory(id, number, version));
             return RedirectToAction("Index");
         }
@@ -86,7 +95,6 @@ namespace CQRSGui.Controllers
         public ActionResult Remove(Guid id, int number, int version)
         {
             var model = _readmodel.GetInventoryItemDetails(id);
-
             ValidateForRemoval(model, number);
 
             if(!ModelState.IsValid)
@@ -95,17 +103,22 @@ namespace CQRSGui.Controllers
                 return View();
             }
 
-
             _bus.Send(new RemoveItemsFromInventory(id, number, version));
             return RedirectToAction("Index");
         }
 
         private void ValidateForRemoval(InventoryItemDetailsDto item, int numberToRemove)
         {
+            if(numberToRemove < 0 )
+                ModelState.AddModelError("Number", "Can not be less than 0.");
             if(numberToRemove > item.CurrentCount)
-            {
                 ModelState.AddModelError("Number", "You cannot check out more items than currently are in stock.");
-            }
+        }
+
+        private void ValidateForCheckIn(InventoryItemDetailsDto model, int numberToCheckIn)
+        {
+            if (numberToCheckIn < 0)
+                ModelState.AddModelError("Number", "Can not be less than 0.");
         }
     }
 }
