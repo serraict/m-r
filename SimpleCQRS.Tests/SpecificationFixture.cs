@@ -68,7 +68,7 @@ namespace SimpleCQRS.Tests
             }
 
 
-            ret += "EXPECTATIONS:\n-------------\n";
+            ret += "\nEXPECTATIONS:\n-------------\n";
 
             foreach (var exp in result.Expectations)
             {
