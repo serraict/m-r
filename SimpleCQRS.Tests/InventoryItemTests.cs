@@ -30,6 +30,29 @@ namespace SimpleCQRS.Tests
             };
         }
 
+        public Specification when_removing_more_items_then_are_available()
+        {
+            var id = Guid.NewGuid();
+
+            return new FailingSpecification<InventoryItem, InvalidOperationException>()
+            {
+                On = () =>
+                {
+                    var sut = new InventoryItem();
+                    var events = new Event[]
+                        {
+                            new InventoryItemCreated(id, "the name"),
+                            new ItemsCheckedInToInventory(id, 1)
+                        };
+                    sut.LoadsFromHistory(events);
+                    return sut;
+                },
+                When = sut => sut.Remove(2),
+                Expect =
+                {
+                    ex => ex.Message == "only 1 items in stock, cannot remove 2 items"
+                },
+            };
         }
 
     }
