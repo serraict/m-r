@@ -33,12 +33,12 @@ namespace SimpleCQRS.Tests
                 On = () => new Given<InventoryItem>(new Event[]
                         {
                             new InventoryItemCreated(id, "the name"),
-                            new ItemsCheckedInToInventory(id, 1)
+                            new ItemsCheckedInToInventory(id, 2)
                         }),
-                When = given => given.Sut.Remove(2),
+                When = given => given.Sut.Remove(3),
                 Expect =
                         {
-                            ex => ex.Message == "only 1 items in stock, cannot remove 2 items"
+                            ex => ex.Message == "only 2 items in stock, cannot remove 3 items"
                         },
             };
         }
