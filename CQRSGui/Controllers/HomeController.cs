@@ -109,16 +109,16 @@ namespace CQRSGui.Controllers
 
         private void ValidateForRemoval(InventoryItemDetailsDto item, int numberToRemove)
         {
-            if(numberToRemove < 0 )
-                ModelState.AddModelError("Number", "Can not be less than 0.");
+            if(numberToRemove <= 0 )
+                ModelState.AddModelError("Number", "Number should be greater than 0.");
             if(numberToRemove > item.CurrentCount)
                 ModelState.AddModelError("Number", "You cannot check out more items than currently are in stock.");
         }
 
         private void ValidateForCheckIn(InventoryItemDetailsDto model, int numberToCheckIn)
         {
-            if (numberToCheckIn < 0)
-                ModelState.AddModelError("Number", "Can not be less than 0.");
+            if (numberToCheckIn <= 0)
+                ModelState.AddModelError("Number", "Number should be greater than 0.");
         }
     }
 }
