@@ -58,7 +58,7 @@ namespace SimpleCQRS.Tests
             if (result.Result != null)
             {
 
-                ret += ("\nResults with:");
+                ret += ("\nResults with:\n");
                 if (result.Result is Exception)
                     ret += (result.Result.GetType() + "\n" + ((Exception)result.Result).Message);
                 else
