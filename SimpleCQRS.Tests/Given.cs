@@ -21,7 +21,7 @@ namespace SimpleCQRS.Tests
         public override string ToString()
         {
             string summary = "Given: " + Sut + "\n";
-            summary += " Given events:\n";
+            summary += " Initially:\n";
             summary = _events.Aggregate(summary, (current, t) => current + ("\t" + t.ToString() + "\n"));
             summary += "\t-\n";
             summary += " Uncommitted events:\n";
