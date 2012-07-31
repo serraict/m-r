@@ -43,19 +43,23 @@ namespace CQRSGui.Infra
 
         }
 
+        public List<Event> GetEventsForAggregate(Guid aggregateId)
+        {
+            using (var stream = _store.OpenStream(aggregateId, 0, int.MaxValue))
+            {
+                return stream.CommittedEvents.Select(ToSimpleCQRSEvent)
+                                             .ToList();
+            }
+        }
+
         private static int ToSimpleCQRSRevision(IEventStream stream)
         {
             return stream.StreamRevision-1;
         }
 
-        public List<Event> GetEventsForAggregate(Guid aggregateId)
+        private Event ToSimpleCQRSEvent(EventMessage msg)
         {
-            using (var stream = _store.OpenStream(aggregateId,0,int.MaxValue))
-            {
-                return stream.CommittedEvents.Select(e => e.Body)
-                                             .Cast<Event>()
-                                             .ToList();
-            }
+            return (Event) msg.Body;
         }
     }
 }
