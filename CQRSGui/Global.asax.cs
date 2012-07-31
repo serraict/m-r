@@ -6,6 +6,7 @@ using System.Web.Mvc;
 using System.Web.Routing;
 using EventStore;
 using EventStore.Dispatcher;
+using EventStore.Serialization;
 using SimpleCQRS;
 
 namespace CQRSGui
@@ -50,14 +51,8 @@ namespace CQRSGui
 
             _bus = new FakeBus();
 
-            var store = Wireup.Init()
-                              .UsingInMemoryPersistence()
-                              .UsingSynchronousDispatchScheduler()
-                              .DispatchTo(new DelegateMessageDispatcher(DispatchCommit))
-                              .Build();
+            var eventStoreWrapper = GetWiredEventStoreWrapper();
 
-            IEventStore eventStoreWrapper = new CQRSGui.Infra.EventStore(store);
-            
             var rep = new Repository<InventoryItem>(eventStoreWrapper);
             var commands = new InventoryCommandHandlers(rep);
             _bus.RegisterHandler<CheckInItemsToInventory>(commands.Handle);
@@ -76,6 +71,18 @@ namespace CQRSGui
             _bus.RegisterHandler<InventoryItemRenamed>(list.Handle);
             _bus.RegisterHandler<InventoryItemDeactivated>(list.Handle);
             ServiceLocator.Bus = _bus;
+        }
+
+        private static IEventStore GetWiredEventStoreWrapper()
+        {
+            var store = Wireup.Init()
+                .UsingMongoPersistence("mongo", new DocumentObjectSerializer())
+                .UsingSynchronousDispatchScheduler()
+                .DispatchTo(new DelegateMessageDispatcher(DispatchCommit))
+                .Build();
+
+            IEventStore eventStoreWrapper = new CQRSGui.Infra.EventStore(store);
+            return eventStoreWrapper;
         }
     }
 }

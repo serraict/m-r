@@ -16,8 +16,8 @@ namespace SimpleCQRS
 	}
 
     public class InventoryItemCreated : Event {
-		public readonly Guid Id;
-		public readonly string Name;
+        public Guid Id { get; set; }
+		public string Name  { get; set; }
 		public InventoryItemCreated(Guid id, string name) {
 			Id = id;
 			Name = name;
@@ -26,9 +26,8 @@ namespace SimpleCQRS
 
     public class InventoryItemRenamed : Event
     {
-		public readonly Guid Id;
-		public readonly string NewName;
- 
+        public Guid Id { get; set; }
+        public string NewName { get; set; }
         public InventoryItemRenamed(Guid id, string newName)
         {
             Id = id;
@@ -38,8 +37,8 @@ namespace SimpleCQRS
 
     public class ItemsCheckedInToInventory : Event
     {
-		public Guid Id;
-		public readonly int Count;
+        public Guid Id { get; set; }
+        public int Count { get; set; }
  
         public ItemsCheckedInToInventory(Guid id, int count) {
 			Id = id;
@@ -49,8 +48,8 @@ namespace SimpleCQRS
 
     public class ItemsRemovedFromInventory : Event
     {
-		public Guid Id;
-		public readonly int Count;
+        public Guid Id { get; set; }
+        public int Count { get; set; }
  
         public ItemsRemovedFromInventory(Guid id, int count) {
 			Id = id;
