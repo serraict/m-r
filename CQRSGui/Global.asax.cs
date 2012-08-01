@@ -1,12 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
+using CQRSGui.Infra;
 using EventStore;
 using EventStore.Dispatcher;
 using EventStore.Serialization;
+using MongoDB.Bson;
+using MongoDB.Bson.IO;
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Conventions;
 using SimpleCQRS;
 
 namespace CQRSGui
@@ -16,8 +22,6 @@ namespace CQRSGui
 
     public class MvcApplication : System.Web.HttpApplication
     {
-        private static FakeBus _bus;
-
         public static void RegisterRoutes(RouteCollection routes)
         {
             routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
@@ -35,7 +39,7 @@ namespace CQRSGui
             try
             {
                 foreach (var @event in commit.Events)
-                    _bus.Publish((Event)@event.Body);
+                    ServiceLocator.Bus.Publish((Event)@event.Body);
             }
             catch (Exception ex)
             {
@@ -49,40 +53,63 @@ namespace CQRSGui
 
             RegisterRoutes(RouteTable.Routes);
 
-            _bus = new FakeBus();
+            var bus = new FakeBus();
 
             var eventStoreWrapper = GetWiredEventStoreWrapper();
 
-            var rep = new Repository<InventoryItem>(eventStoreWrapper);
-            var commands = new InventoryCommandHandlers(rep);
-            _bus.RegisterHandler<CheckInItemsToInventory>(commands.Handle);
-            _bus.RegisterHandler<CreateInventoryItem>(commands.Handle);
-            _bus.RegisterHandler<DeactivateInventoryItem>(commands.Handle);
-            _bus.RegisterHandler<RemoveItemsFromInventory>(commands.Handle);
-            _bus.RegisterHandler<RenameInventoryItem>(commands.Handle);
-            var detail = new InvenotryItemDetailView();
-            _bus.RegisterHandler<InventoryItemCreated>(detail.Handle);
-            _bus.RegisterHandler<InventoryItemDeactivated>(detail.Handle);
-            _bus.RegisterHandler<InventoryItemRenamed>(detail.Handle);
-            _bus.RegisterHandler<ItemsCheckedInToInventory>(detail.Handle);
-            _bus.RegisterHandler<ItemsRemovedFromInventory>(detail.Handle);
-            var list = new InventoryListView();
-            _bus.RegisterHandler<InventoryItemCreated>(list.Handle);
-            _bus.RegisterHandler<InventoryItemRenamed>(list.Handle);
-            _bus.RegisterHandler<InventoryItemDeactivated>(list.Handle);
-            ServiceLocator.Bus = _bus;
+            RegisterCommandHandlers(bus, eventStoreWrapper);
+            RegisterEventHandlers(bus);
+            
+            // read model hooked up ... since we have not persisted our read model
+            // we'll replay all events to rebuild the read model
+            RebuildReadModel(eventStoreWrapper, bus);
+            
+            ServiceLocator.Bus = bus;
         }
 
-        private static IEventStore GetWiredEventStoreWrapper()
+        private static void RegisterEventHandlers(FakeBus bus)
         {
+            var detail = new InvenotryItemDetailView();
+            bus.RegisterHandler<InventoryItemCreated>(detail.Handle);
+            bus.RegisterHandler<InventoryItemDeactivated>(detail.Handle);
+            bus.RegisterHandler<InventoryItemRenamed>(detail.Handle);
+            bus.RegisterHandler<ItemsCheckedInToInventory>(detail.Handle);
+            bus.RegisterHandler<ItemsRemovedFromInventory>(detail.Handle);
+            var list = new InventoryListView();
+            bus.RegisterHandler<InventoryItemCreated>(list.Handle);
+            bus.RegisterHandler<InventoryItemRenamed>(list.Handle);
+            bus.RegisterHandler<InventoryItemDeactivated>(list.Handle);
+        }
+
+        private static void RegisterCommandHandlers(FakeBus bus, Infra.EventStore eventStoreWrapper)
+        {
+            var rep = new Repository<InventoryItem>(eventStoreWrapper);
+            var commands = new InventoryCommandHandlers(rep);
+            bus.RegisterHandler<CheckInItemsToInventory>(commands.Handle);
+            bus.RegisterHandler<CreateInventoryItem>(commands.Handle);
+            bus.RegisterHandler<DeactivateInventoryItem>(commands.Handle);
+            bus.RegisterHandler<RemoveItemsFromInventory>(commands.Handle);
+            bus.RegisterHandler<RenameInventoryItem>(commands.Handle);
+        }
+
+        private void RebuildReadModel(IGetAllEvents store, FakeBus bus)
+        {
+            foreach (var e in store.GetAll())
+            {
+                bus.Publish(e);
+            }
+        }
+
+        private static CQRSGui.Infra.EventStore GetWiredEventStoreWrapper()
+        {
+
             var store = Wireup.Init()
                 .UsingMongoPersistence("mongo", new DocumentObjectSerializer())
                 .UsingSynchronousDispatchScheduler()
                 .DispatchTo(new DelegateMessageDispatcher(DispatchCommit))
                 .Build();
 
-            IEventStore eventStoreWrapper = new CQRSGui.Infra.EventStore(store);
-            return eventStoreWrapper;
+            return new CQRSGui.Infra.EventStore(store);
         }
     }
 }

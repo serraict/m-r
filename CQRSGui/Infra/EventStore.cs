@@ -7,10 +7,15 @@ using ConcurrencyException = SimpleCQRS.ConcurrencyException;
 
 namespace CQRSGui.Infra
 {
+    internal interface IGetAllEvents
+    {
+        Event[] GetAll();
+    }
+
     /// <summary>
     /// Utility class to wire SimpleCQRS to use Oliver's event store
     /// </summary>
-    public class EventStore : SimpleCQRS.IEventStore
+    public class EventStore : SimpleCQRS.IEventStore, IGetAllEvents
     {
         private IStoreEvents _store;
         private readonly IEventPublisher _publisher;
@@ -40,7 +45,6 @@ namespace CQRSGui.Infra
 
                 stream.CommitChanges(Guid.NewGuid());
             }
-
         }
 
         public List<Event> GetEventsForAggregate(Guid aggregateId)
@@ -60,6 +64,14 @@ namespace CQRSGui.Infra
         private Event ToSimpleCQRSEvent(EventMessage msg)
         {
             return (Event) msg.Body;
+        }
+
+        public Event[] GetAll()
+        {
+            return _store.Advanced.GetFrom(DateTime.MinValue)
+                .SelectMany(c => c.Events)
+                .Select(ToSimpleCQRSEvent)
+                .ToArray();
         }
     }
 }
