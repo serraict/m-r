@@ -102,6 +102,11 @@ namespace CQRSGui
 
         private static CQRSGui.Infra.EventStore GetWiredEventStoreWrapper()
         {
+            var types = Assembly.GetAssembly(typeof(SimpleCQRS.Event))
+                                        .GetTypes()
+                                        .Where(type => type.IsSubclassOf(typeof(SimpleCQRS.Event)));
+            foreach (var t in types)
+                BsonClassMap.LookupClassMap(t);
 
             var store = Wireup.Init()
                 .UsingMongoPersistence("mongo", new DocumentObjectSerializer())
