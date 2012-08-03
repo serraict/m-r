@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Dynamic;
 using System.Web.Mvc;
 using SimpleCQRS;
 
@@ -120,5 +121,32 @@ namespace CQRSGui.Controllers
             if (numberToCheckIn <= 0)
                 ModelState.AddModelError("Number", "Number should be greater than 0.");
         }
+
+        public ActionResult Rebuild()
+        {
+            var model = new RebuildReadModelModel() {ToVersion = int.MaxValue};
+            return View(model);
+        }
+
+        [HttpPost]
+        public ActionResult Rebuild(int toVersion)
+        {
+            return Index();
+        }
+
+        //private void RebuildReadModel(store)
+        //{
+        //    foreach (var e in store.GetAll())
+        //    {
+        //        bus.Publish(e);
+        //    }
+        //}
+
     }
+
+    public class RebuildReadModelModel
+    {
+        public int ToVersion { get; set; }
+    }
+
 }

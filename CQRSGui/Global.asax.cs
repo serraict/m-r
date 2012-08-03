@@ -64,6 +64,7 @@ namespace CQRSGui
             // we'll replay all events to rebuild the read model
             RebuildReadModel(eventStoreWrapper, bus);
             
+                       
             ServiceLocator.Bus = bus;
         }
 

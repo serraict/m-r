@@ -12,4 +12,5 @@
         </li>
     <%} %></ul>
     <%: Html.ActionLink("Add","Add") %>
+    <%: Html.ActionLink("Rebuild read model","Rebuild") %>
 </asp:Content>
