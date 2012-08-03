@@ -84,6 +84,7 @@
     </Compile>
     <Compile Include="Infra\EventStore.cs" />
     <Compile Include="Infra\MongoReadModelFacade.cs" />
+    <Compile Include="Infra\RegisterHandlers.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServiceLocator.cs" />
   </ItemGroup>

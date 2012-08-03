@@ -11,10 +11,14 @@ namespace SimpleCQRS
 
     public class InventoryItemDetailsDto
     {
-        public Guid Id;
-        public string Name;
-        public int CurrentCount;
-        public int Version;
+        public Guid Id { get; set; }
+        public string Name { get; set; }
+        public int CurrentCount { get; set; }
+        public int Version { get; set; }
+
+        public InventoryItemDetailsDto()
+        {
+        }
 
         public InventoryItemDetailsDto(Guid id, string name, int currentCount, int version)
         {
@@ -27,8 +31,12 @@ namespace SimpleCQRS
 
     public class InventoryItemListDto
     {
-        public Guid Id;
-        public string Name;
+        public Guid Id { get; set; }
+        public string Name { get; set; }
+
+        public InventoryItemListDto()
+        {
+        }
 
         public InventoryItemListDto(Guid id, string name)
         {

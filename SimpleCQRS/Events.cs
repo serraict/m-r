@@ -7,7 +7,7 @@ namespace SimpleCQRS
 	}
 	
 	public class InventoryItemDeactivated : Event {
-		public readonly Guid Id;
+        public Guid Id { get; set; }
 
 	    public InventoryItemDeactivated(Guid id)
 		{

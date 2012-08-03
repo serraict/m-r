@@ -57,48 +57,11 @@ namespace CQRSGui
 
             var eventStoreWrapper = GetWiredEventStoreWrapper();
 
-            RegisterCommandHandlers(bus, eventStoreWrapper);
-            RegisterEventHandlers(bus);
-            
-            // read model hooked up ... since we have not persisted our read model
-            // we'll replay all events to rebuild the read model
-            RebuildReadModel(eventStoreWrapper, bus);
-            
+            RegisterHandlers.RegisterCommandHandlers(bus, eventStoreWrapper);
+            RegisterHandlers.RegisterEventHandlers(bus);
                        
             ServiceLocator.Bus = bus;
-        }
-
-        private static void RegisterEventHandlers(FakeBus bus)
-        {
-            var detail = new InvenotryItemDetailView();
-            bus.RegisterHandler<InventoryItemCreated>(detail.Handle);
-            bus.RegisterHandler<InventoryItemDeactivated>(detail.Handle);
-            bus.RegisterHandler<InventoryItemRenamed>(detail.Handle);
-            bus.RegisterHandler<ItemsCheckedInToInventory>(detail.Handle);
-            bus.RegisterHandler<ItemsRemovedFromInventory>(detail.Handle);
-            var list = new InventoryListView();
-            bus.RegisterHandler<InventoryItemCreated>(list.Handle);
-            bus.RegisterHandler<InventoryItemRenamed>(list.Handle);
-            bus.RegisterHandler<InventoryItemDeactivated>(list.Handle);
-        }
-
-        private static void RegisterCommandHandlers(FakeBus bus, Infra.EventStore eventStoreWrapper)
-        {
-            var rep = new Repository<InventoryItem>(eventStoreWrapper);
-            var commands = new InventoryCommandHandlers(rep);
-            bus.RegisterHandler<CheckInItemsToInventory>(commands.Handle);
-            bus.RegisterHandler<CreateInventoryItem>(commands.Handle);
-            bus.RegisterHandler<DeactivateInventoryItem>(commands.Handle);
-            bus.RegisterHandler<RemoveItemsFromInventory>(commands.Handle);
-            bus.RegisterHandler<RenameInventoryItem>(commands.Handle);
-        }
-
-        private void RebuildReadModel(IGetAllEvents store, FakeBus bus)
-        {
-            foreach (var e in store.GetAll())
-            {
-                bus.Publish(e);
-            }
+            ServiceLocator.Store = eventStoreWrapper;
         }
 
         private static CQRSGui.Infra.EventStore GetWiredEventStoreWrapper()

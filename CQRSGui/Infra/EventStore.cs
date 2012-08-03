@@ -70,6 +70,7 @@ namespace CQRSGui.Infra
             return _store.Advanced.GetFrom(DateTime.MinValue)
                 .SelectMany(c => c.Events)
                 .Select(ToSimpleCQRSEvent)
+                .OrderBy(e => e.Version)
                 .ToArray();
         }
     }

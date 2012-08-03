@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Dynamic;
 using System.Web.Mvc;
+using CQRSGui.Infra;
 using SimpleCQRS;
 
 namespace CQRSGui.Controllers
@@ -9,12 +10,14 @@ namespace CQRSGui.Controllers
     public class HomeController : Controller
     {
         private FakeBus _bus;
-        private ReadModelFacade _readmodel;
+        private IReadModelFacade _readmodel;
+        private Infra.EventStore _store;
 
         public HomeController()
         {
             _bus = ServiceLocator.Bus;
-            _readmodel = new ReadModelFacade();
+            _store = ServiceLocator.Store;
+            _readmodel = new MongoReadModelFacade();
         }
 
         public ActionResult Index()
@@ -131,17 +134,9 @@ namespace CQRSGui.Controllers
         [HttpPost]
         public ActionResult Rebuild(int toVersion)
         {
-            return Index();
+            MongoReadModelFacade.RebuildReadModel(toVersion);
+            return RedirectToAction("Index");
         }
-
-        //private void RebuildReadModel(store)
-        //{
-        //    foreach (var e in store.GetAll())
-        //    {
-        //        bus.Publish(e);
-        //    }
-        //}
-
     }
 
     public class RebuildReadModelModel
