@@ -109,7 +109,7 @@ namespace CQRSGui
                 BsonClassMap.LookupClassMap(t);
 
             var store = Wireup.Init()
-                .UsingMongoPersistence("mongo", new DocumentObjectSerializer())
+                .UsingMongoPersistence("eventstore", new DocumentObjectSerializer())
                 .UsingSynchronousDispatchScheduler()
                 .DispatchTo(new DelegateMessageDispatcher(DispatchCommit))
                 .Build();
