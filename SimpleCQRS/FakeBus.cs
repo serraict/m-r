@@ -39,9 +39,7 @@ namespace SimpleCQRS
             if (!_routes.TryGetValue(@event.GetType(), out handlers)) return;
             foreach(var handler in handlers)
             {
-                //dispatch on thread pool for added awesomeness
-                var handler1 = handler;
-                ThreadPool.QueueUserWorkItem(x => handler1(@event));
+                handler(@event);
             }
         }
     }
