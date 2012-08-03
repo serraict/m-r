@@ -2,10 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using EventStore;
-using SimpleCQRS;
-using ConcurrencyException = SimpleCQRS.ConcurrencyException;
 
-namespace CQRSGui.Infra
+namespace SimpleCQRS.ApplicationService
 {
     internal interface IGetAllEvents
     {

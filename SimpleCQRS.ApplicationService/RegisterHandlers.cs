@@ -5,13 +5,13 @@
 
         public static void RegisterEventHandlers(FakeBus bus)
         {
-            var detail = new Infra.InventoryItemDetailView();
+            var detail = new CQRSGui.Infra.InventoryItemDetailView();
             bus.RegisterHandler<InventoryItemCreated>(detail.Handle);
             bus.RegisterHandler<InventoryItemDeactivated>(detail.Handle);
             bus.RegisterHandler<InventoryItemRenamed>(detail.Handle);
             bus.RegisterHandler<ItemsCheckedInToInventory>(detail.Handle);
             bus.RegisterHandler<ItemsRemovedFromInventory>(detail.Handle);
-            var list = new Infra.InventoryListView();
+            var list = new CQRSGui.Infra.InventoryListView();
             bus.RegisterHandler<InventoryItemCreated>(list.Handle);
             bus.RegisterHandler<InventoryItemRenamed>(list.Handle);
             bus.RegisterHandler<InventoryItemDeactivated>(list.Handle);

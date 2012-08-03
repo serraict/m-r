@@ -12,20 +12,17 @@ namespace SimpleCQRS.ApplicationService
 {
     class Program
     {
+        private static FakeBus _bus; 
+
         static void Main(string[] args)
         {
 
-            var bus = new FakeBus();
+            var _bus = new FakeBus();
 
             var eventStoreWrapper = GetWiredEventStoreWrapper();
 
-            RegisterHandlers.RegisterCommandHandlers(bus, eventStoreWrapper);
-            RegisterHandlers.RegisterEventHandlers(bus);
-
-            ServiceLocator.Bus = bus;
-            ServiceLocator.Store = eventStoreWrapper;
-
-
+            RegisterHandlers.RegisterCommandHandlers(_bus, eventStoreWrapper);
+            RegisterHandlers.RegisterEventHandlers(_bus);
         }
 
 
@@ -34,7 +31,7 @@ namespace SimpleCQRS.ApplicationService
             try
             {
                 foreach (var @event in commit.Events)
-                    ServiceLocator.Bus.Publish((Event)@event.Body);
+                    _bus.Publish((Event)@event.Body);
             }
             catch (Exception ex)
             {
@@ -42,7 +39,7 @@ namespace SimpleCQRS.ApplicationService
             }
         }
 
-        private static CQRSGui.Infra.EventStore GetWiredEventStoreWrapper()
+        private static EventStore GetWiredEventStoreWrapper()
         {
             var types = Assembly.GetAssembly(typeof(SimpleCQRS.Event))
                                         .GetTypes()
@@ -56,7 +53,7 @@ namespace SimpleCQRS.ApplicationService
                 .DispatchTo(new DelegateMessageDispatcher(DispatchCommit))
                 .Build();
 
-            return new CQRSGui.Infra.EventStore(store);
+            return new EventStore(store);
         }
     }
 }
