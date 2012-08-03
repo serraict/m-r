@@ -1,6 +1,4 @@
-﻿using SimpleCQRS;
-
-namespace CQRSGui.Infra
+﻿namespace SimpleCQRS.ApplicationService
 {
     public static class RegisterHandlers
     {

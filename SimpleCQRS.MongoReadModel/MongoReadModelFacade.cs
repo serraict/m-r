@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
-using System.Web.Configuration;
 using MongoDB.Driver;
 // using MongoDB.Driver.Linq; using 1.3.1 - from event store, so annot use linq
 using MongoDB.Driver.Builders;
@@ -22,42 +21,13 @@ namespace CQRSGui.Infra
             return InventoryItemDetailView.Get(id);
         }
 
-        public static void RebuildReadModel(int toVersion)
-        {
-            DropReadModelDatabase();
-            RePlayAllEvents(toVersion);
-        }
-
-        private static void RePlayAllEvents(int toVersion)
-        {
-            if (toVersion != int.MaxValue)
-                throw new ArgumentOutOfRangeException("toVersion", "partial rebuild not supported yet");
-
-            var store = ServiceLocator.Store;
-            var bus = new FakeBus();
-            RegisterHandlers.RegisterCommandHandlers(bus, store);
-            RegisterHandlers.RegisterEventHandlers(bus);
-            var events = store.GetAll();
-            foreach (var e in events)
-            {
-                bus.Publish(e); 
-            }
-        }
-
-        private static void DropReadModelDatabase()
-        {
-            var server = GetMongoServer();
-
-            server.DropDatabase("simplecqrs_readmodel");
-        }
-
         public static MongoServer GetMongoServer()
         {
-            var connectionStringsSection =
-                (ConnectionStringsSection) WebConfigurationManager.GetSection("connectionStrings");
-            var conn = connectionStringsSection.ConnectionStrings["readmodel"].ConnectionString;
-            var server = MongoServer.Create(conn);
-            return server;
+            //var connectionStringsSection =
+            //    (ConnectionStringsSection) WebConfigurationManager.GetSection("connectionStrings");
+            //var conn = connectionStringsSection.ConnectionStrings["readmodel"].ConnectionString;
+            //var server = MongoServer.Create(conn);
+            return MongoServer.Create("mongodb://localhost:27017/simplecqrs_readmodel?safe=true");
         }
 
         public static MongoDatabase Db()

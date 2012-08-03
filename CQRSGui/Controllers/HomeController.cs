@@ -11,12 +11,10 @@ namespace CQRSGui.Controllers
     {
         private FakeBus _bus;
         private IReadModelFacade _readmodel;
-        private Infra.EventStore _store;
 
         public HomeController()
         {
             _bus = ServiceLocator.Bus;
-            _store = ServiceLocator.Store;
             _readmodel = new MongoReadModelFacade();
         }
 
@@ -125,18 +123,6 @@ namespace CQRSGui.Controllers
                 ModelState.AddModelError("Number", "Number should be greater than 0.");
         }
 
-        public ActionResult Rebuild()
-        {
-            var model = new RebuildReadModelModel() {ToVersion = int.MaxValue};
-            return View(model);
-        }
-
-        [HttpPost]
-        public ActionResult Rebuild(int toVersion)
-        {
-            MongoReadModelFacade.RebuildReadModel(toVersion);
-            return RedirectToAction("Index");
-        }
     }
 
     public class RebuildReadModelModel
