@@ -17,8 +17,7 @@ namespace CQRSGui.Infra
     /// </summary>
     public class EventStore : SimpleCQRS.IEventStore, IGetAllEvents
     {
-        private IStoreEvents _store;
-        private readonly IEventPublisher _publisher;
+        private readonly IStoreEvents _store;
 
         public EventStore(IStoreEvents store)
         {
