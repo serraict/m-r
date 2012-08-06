@@ -1,13 +1,17 @@
 using System;
-namespace SimpleCQRS
+namespace SimpleCQRS.Commands
 {
 	public class Command : Message
 	{
 	}
 	
 	public class DeactivateInventoryItem : Command {
-		public readonly Guid InventoryItemId;
-	    public readonly int OriginalVersion;
+	    public Guid InventoryItemId { get; set; }
+        public int OriginalVersion { get; set; }
+
+	    public DeactivateInventoryItem()
+	    {
+	    }
 
 	    public DeactivateInventoryItem(Guid inventoryItemId, int originalVersion)
 	    {
@@ -17,9 +21,13 @@ namespace SimpleCQRS
 	}
 	
 	public class CreateInventoryItem : Command {
-		public readonly Guid InventoryItemId;
-		public readonly string Name;
-	    
+        public Guid InventoryItemId { get; set; }
+        public string Name { get; set; }
+
+	    public CreateInventoryItem()
+	    {
+	    }
+
 	    public CreateInventoryItem(Guid inventoryItemId, string name)
         {
 			InventoryItemId = inventoryItemId;
@@ -28,9 +36,13 @@ namespace SimpleCQRS
 	}
 	
 	public class RenameInventoryItem : Command {
-		public readonly Guid InventoryItemId;
-		public readonly string NewName;
-	    public readonly int OriginalVersion;
+        public Guid InventoryItemId { get; set; }
+        public string NewName { get; set; }
+        public int OriginalVersion { get; set; }
+
+	    public RenameInventoryItem()
+	    {
+	    }
 
 	    public RenameInventoryItem(Guid inventoryItemId, string newName, int originalVersion)
         {
@@ -41,9 +53,9 @@ namespace SimpleCQRS
 	}
 
 	public class CheckInItemsToInventory : Command {
-		public Guid InventoryItemId;
-		public readonly int Count;
-	    public readonly int OriginalVersion;
+        public Guid InventoryItemId { get; set; }
+        public int Count { get; set; }
+        public int OriginalVersion { get; set; }
 
 	    public CheckInItemsToInventory(Guid inventoryItemId, int count, int originalVersion) {
 			InventoryItemId = inventoryItemId;
@@ -54,8 +66,12 @@ namespace SimpleCQRS
 	
 	public class RemoveItemsFromInventory : Command {
 		public Guid InventoryItemId;
-		public readonly int Count;
-	    public readonly int OriginalVersion;
+		public  int Count;
+	    public  int OriginalVersion;
+
+	    public RemoveItemsFromInventory()
+	    {
+	    }
 
 	    public RemoveItemsFromInventory(Guid inventoryItemId, int count, int originalVersion)
         {
