@@ -31,3 +31,4 @@ packages/
 CQRSGui/~/Logs
 CQRSGui/client.esent/
 CQRSGui/client_subscriptions.esent/
+CQRSGui/Logs/
