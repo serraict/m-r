@@ -69,9 +69,9 @@ namespace SimpleCQRS.Commands
 	}
 	
 	public class RemoveItemsFromInventory : Command {
-		public Guid InventoryItemId;
-		public  int Count;
-	    public  int OriginalVersion;
+        public Guid InventoryItemId { get; set; }
+        public int Count { get; set; }
+        public int OriginalVersion { get; set; }
 
 	    public RemoveItemsFromInventory()
 	    {
