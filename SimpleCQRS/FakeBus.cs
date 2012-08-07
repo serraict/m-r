@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+using SimpleCQRS.Commands;
 
 namespace SimpleCQRS
 {
@@ -21,8 +22,11 @@ namespace SimpleCQRS
 
         public void Send<T>(T command) where T : Command
         {
+            if(command == null)
+                throw new ArgumentNullException("command");
+
             List<Action<Message>> handlers; 
-            if (_routes.TryGetValue(typeof(T), out handlers))
+            if (_routes.TryGetValue(command.GetType(), out handlers))
             {
                 if (handlers.Count != 1) throw new InvalidOperationException("cannot send to more than one handler");
                 handlers[0](command);

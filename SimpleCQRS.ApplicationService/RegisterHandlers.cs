@@ -1,4 +1,6 @@
-﻿namespace SimpleCQRS.ApplicationService
+﻿using SimpleCQRS.Commands;
+
+namespace SimpleCQRS.ApplicationService
 {
     public static class RegisterHandlers
     {

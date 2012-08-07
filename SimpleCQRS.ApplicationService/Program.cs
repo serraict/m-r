@@ -1,59 +1,61 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using System.Text;
-using EventStore;
-using EventStore.Dispatcher;
-using EventStore.Serialization;
-using MongoDB.Bson.Serialization;
+using Rhino.ServiceBus;
+using Rhino.ServiceBus.Castle;
+using Rhino.ServiceBus.Hosting;
+using Rhino.ServiceBus.Impl;
+using SimpleCQRS.Commands;
+using log4net.Config;
 
 namespace SimpleCQRS.ApplicationService
 {
-    class Program
+    internal class Program
     {
-        private static FakeBus _bus; 
 
-        static void Main(string[] args)
+        public class BackendBootStrapper : CastleBootStrapper
         {
-
-            var _bus = new FakeBus();
-
-            var eventStoreWrapper = GetWiredEventStoreWrapper();
-
-            RegisterHandlers.RegisterCommandHandlers(_bus, eventStoreWrapper);
-            RegisterHandlers.RegisterEventHandlers(_bus);
-        }
-
-
-        private static void DispatchCommit(Commit commit)
-        {
-            try
+            protected override void ConfigureContainer()
             {
-                foreach (var @event in commit.Events)
-                    _bus.Publish((Event)@event.Body);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex);
+                base.ConfigureContainer();
+
+                Container.Install(new BusInstaller());
             }
         }
 
-        private static EventStore GetWiredEventStoreWrapper()
+        private static void Main(string[] args)
         {
-            var types = Assembly.GetAssembly(typeof(SimpleCQRS.Event))
-                                        .GetTypes()
-                                        .Where(type => type.IsSubclassOf(typeof(SimpleCQRS.Event)));
-            foreach (var t in types)
-                BsonClassMap.LookupClassMap(t);
+            XmlConfigurator.Configure();
 
-            var store = Wireup.Init()
-                .UsingMongoPersistence("eventstore", new DocumentObjectSerializer())
-                .UsingSynchronousDispatchScheduler()
-                .DispatchTo(new DelegateMessageDispatcher(DispatchCommit))
-                .Build();
+            QueueUtil.PrepareQueue("backend");
 
-            return new EventStore(store);
+            Console.WriteLine("Starting to listen for incoming messages ... (enter to quit)");
+
+            var host = new DefaultHost();
+            host.Start<BackendBootStrapper>();
+
+            Console.ReadLine();
+        }
+
+    }
+    
+    public class InventoryCommandHandler : ConsumerOf<Command>
+    {
+        private readonly IServiceBus _bus;
+        private readonly ICommandSender _localbus;
+
+        public InventoryCommandHandler(IServiceBus bus, ICommandSender localbus)
+        {
+            _bus = bus;
+            _localbus = localbus;
+        }
+
+        public void Consume(Command message)
+        {
+            Console.WriteLine("Received {0}", message);
+            _localbus.Send(message); // dispatch to internal infrastructure
+            _bus.Reply(message);     // reply to indicate command was handled
+            Console.WriteLine("Handled {0}", message);
         }
     }
 }
