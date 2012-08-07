@@ -2,26 +2,27 @@
 using System.Dynamic;
 using System.Web.Mvc;
 using CQRSGui.Infra;
+using Rhino.ServiceBus;
 using SimpleCQRS;
+using SimpleCQRS.Commands;
 
 namespace CQRSGui.Controllers
 {
     [HandleError]
     public class HomeController : Controller
     {
-        private FakeBus _bus;
+        private IServiceBus _bus;
         private IReadModelFacade _readmodel;
 
         public HomeController()
         {
             _bus = ServiceLocator.Bus;
-            _readmodel = new MongoReadModelFacade();
+            _readmodel = ServiceLocator.ReadModel;
         }
 
         public ActionResult Index()
         {
             ViewData.Model = _readmodel.GetInventoryItems();
-
             return View();
         }
 

@@ -1,6 +1,15 @@
-﻿using System.Web.Mvc;
+﻿using System;
+using System.IO;
+using System.Web.Mvc;
 using System.Web.Routing;
+using CQRSGui.Infra;
+using Castle.Windsor;
+using Rhino.ServiceBus;
+using Rhino.ServiceBus.Castle;
+using Rhino.ServiceBus.Hosting;
+using Rhino.ServiceBus.Impl;
 using SimpleCQRS;
+using log4net.Config;
 
 namespace CQRSGui
 {
@@ -26,12 +35,39 @@ namespace CQRSGui
 
             RegisterRoutes(RouteTable.Routes);
 
-            var bus = new FakeBus();
-            //RegisterHandlers.RegisterCommandHandlers(bus, eventStoreWrapper);
-            ServiceLocator.Bus = bus;
+            XmlConfigurator.Configure();
 
+            QueueUtil.PrepareQueue("client");
+
+            var host = new DefaultHost();
+            host.Start<ClientBootStrapper>();
+
+            ServiceLocator.Bus = (IServiceBus) host.Bus;
+            ServiceLocator.ReadModel = new MongoReadModelFacade();
         }
+    }
 
+    class ClientBootStrapper : CastleBootStrapper
+    {
+    }
 
+    public class QueueUtil
+    {
+        public static void PrepareQueue(string queueName)
+        {
+            if (string.IsNullOrWhiteSpace(queueName))
+            {
+                throw new ArgumentNullException("queueName");
+            }
+
+            var esentName = queueName + ".esent";
+            var subscriptionEsentDb = queueName + "_subscriptions.esent";
+
+            if (Directory.Exists(esentName))
+                Directory.Delete(esentName, true);
+
+            if (Directory.Exists(subscriptionEsentDb))
+                Directory.Delete(subscriptionEsentDb, true);
+        }
     }
 }

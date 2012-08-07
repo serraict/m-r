@@ -1,9 +1,11 @@
-﻿using SimpleCQRS;
+﻿using Rhino.ServiceBus;
+using SimpleCQRS;
 
 namespace CQRSGui
 {
     public static class ServiceLocator
     {
-        public static FakeBus Bus { get; set; }
+        public static IServiceBus Bus { get; set; }
+        public static IReadModelFacade ReadModel { get; set; }
     }
 }
