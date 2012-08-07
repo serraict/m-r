@@ -57,6 +57,10 @@ namespace SimpleCQRS.Commands
         public int Count { get; set; }
         public int OriginalVersion { get; set; }
 
+	    public CheckInItemsToInventory()
+	    {
+	    }
+
 	    public CheckInItemsToInventory(Guid inventoryItemId, int count, int originalVersion) {
 			InventoryItemId = inventoryItemId;
 			Count = count;
