@@ -54,6 +54,7 @@
   <ItemGroup>
     <Compile Include="Given.cs" />
     <Compile Include="InventoryItemTests.cs" />
+    <Compile Include="SerializationTests.cs" />
     <Compile Include="SpecificationFixture.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
