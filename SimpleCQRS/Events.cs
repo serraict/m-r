@@ -4,7 +4,7 @@ namespace SimpleCQRS.Events
 	public class Event : Message
 	{
         public Guid Id { get; set; }
-        public int Version;
+        public int Version { get; set; }
 	}
 	
 	public class InventoryItemDeactivated : Event {
