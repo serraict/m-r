@@ -2,6 +2,7 @@
 using System.Linq;
 using NUnit.Framework;
 using Simple.Testing.ClientFramework;
+using SimpleCQRS.Events;
 
 namespace SimpleCQRS.Tests
 {

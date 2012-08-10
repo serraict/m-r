@@ -2,13 +2,10 @@
 using System.IO;
 using System.Web.Mvc;
 using System.Web.Routing;
-using CQRSGui.Infra;
-using Castle.Windsor;
 using Rhino.ServiceBus;
 using Rhino.ServiceBus.Castle;
 using Rhino.ServiceBus.Hosting;
-using Rhino.ServiceBus.Impl;
-using SimpleCQRS;
+using SimpleCQRS.MongoReadModel;
 using log4net.Config;
 
 namespace CQRSGui

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Dynamic;
 using System.Web.Mvc;
-using CQRSGui.Infra;
 using Rhino.ServiceBus;
 using SimpleCQRS;
 using SimpleCQRS.Commands;

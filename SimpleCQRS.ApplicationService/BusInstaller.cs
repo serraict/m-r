@@ -8,6 +8,7 @@ using EventStore;
 using EventStore.Dispatcher;
 using EventStore.Serialization;
 using MongoDB.Bson.Serialization;
+using SimpleCQRS.Events;
 
 namespace SimpleCQRS.ApplicationService
 {
@@ -19,16 +20,16 @@ namespace SimpleCQRS.ApplicationService
 
         private static EventStore GetWiredEventStoreWrapper()
         {
-            var types = Assembly.GetAssembly(typeof(SimpleCQRS.Event))
+            var types = Assembly.GetAssembly(typeof(Event))
                 .GetTypes()
-                .Where(type => type.IsSubclassOf(typeof(SimpleCQRS.Event)));
+                .Where(type => type.IsSubclassOf(typeof(Event)));
             foreach (var t in types)
                 BsonClassMap.LookupClassMap(t);
 
             var store = Wireup.Init()
                 .UsingMongoPersistence("eventstore", new DocumentObjectSerializer())
                 .UsingSynchronousDispatchScheduler()
-                .DispatchTo(new DelegateMessageDispatcher(DispatchCommit))
+                .DispatchTo(new DelegateMessageDispatcher(Program.DispatchCommit))
                 .Build();
 
             return new EventStore(store);
@@ -53,20 +54,6 @@ namespace SimpleCQRS.ApplicationService
             _localbus = new FakeBus();
             _eventStoreWrapper = GetWiredEventStoreWrapper();
             RegisterHandlers.RegisterCommandHandlers(_localbus, _eventStoreWrapper);
-            RegisterHandlers.RegisterEventHandlers(_localbus);
-        }
-
-        private static void DispatchCommit(Commit commit)
-        {
-            try
-            {
-                foreach (var @event in commit.Events)
-                    _localbus.Publish((Event)@event.Body);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex);
-            }
         }
     
     }

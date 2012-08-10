@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using SimpleCQRS.Commands;
+using SimpleCQRS.Events;
 
 namespace SimpleCQRS
 {

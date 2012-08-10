@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using EventStore;
+using SimpleCQRS.Events;
 
 namespace SimpleCQRS.ApplicationService
 {
