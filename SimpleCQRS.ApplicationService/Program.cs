@@ -65,18 +65,18 @@ namespace SimpleCQRS.ApplicationService
     public class InventoryCommandHandler : ConsumerOf<Command>
     {
         private readonly IServiceBus _bus;
-        private readonly ICommandSender _localbus;
+        private InventoryCommandHandlers _handlers;
 
-        public InventoryCommandHandler(IServiceBus bus, ICommandSender localbus)
+        public InventoryCommandHandler(IServiceBus bus, InventoryCommandHandlers handlers)
         {
             _bus = bus;
-            _localbus = localbus;
+            _handlers = handlers;
         }
 
         public void Consume(Command message)
         {
             Console.WriteLine("Received {0}", message);
-            _localbus.Send(message); // dispatch to internal infrastructure
+            _handlers.HandleCommand(message);
             _bus.Reply(message);     // reply to indicate command was handled
             Console.WriteLine("Handled {0}", message);
         }

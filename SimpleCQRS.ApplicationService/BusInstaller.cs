@@ -8,16 +8,13 @@ using EventStore;
 using EventStore.Dispatcher;
 using EventStore.Serialization;
 using MongoDB.Bson.Serialization;
+using SimpleCQRS.Commands;
 using SimpleCQRS.Events;
 
 namespace SimpleCQRS.ApplicationService
 {
     public class BusInstaller : IWindsorInstaller
     {
-        // get rid of these statics later
-        private static FakeBus _localbus;
-        private EventStore _eventStoreWrapper;
-
         private static EventStore GetWiredEventStoreWrapper()
         {
             var types = Assembly.GetAssembly(typeof(Event))
@@ -37,24 +34,10 @@ namespace SimpleCQRS.ApplicationService
 
         public void Install(IWindsorContainer container, IConfigurationStore store)
         {
-            InitBusAndEventStore();
-
-            // when registering instances, Windsor does not do any lifetime management.
-            container.Register(
-                Component.For<ICommandSender, IEventPublisher>()
-                    .Instance(_localbus)
+            container.Register(Component.For<IEventStore>().Instance(GetWiredEventStoreWrapper()),
+                Component.For(typeof(IRepository<>)).ImplementedBy(typeof(Repository<>)),
+                Component.For<InventoryCommandHandlers>().ImplementedBy<InventoryCommandHandlers>()
                 );
         }
-
-        private void InitBusAndEventStore()
-        {
-            if (_localbus != null && _eventStoreWrapper != null)
-                return;
-
-            _localbus = new FakeBus();
-            _eventStoreWrapper = GetWiredEventStoreWrapper();
-            RegisterHandlers.RegisterCommandHandlers(_localbus, _eventStoreWrapper);
-        }
-    
     }
 }
