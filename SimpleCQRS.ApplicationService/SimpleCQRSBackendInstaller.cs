@@ -13,9 +13,9 @@ using SimpleCQRS.Events;
 
 namespace SimpleCQRS.ApplicationService
 {
-    public class BusInstaller : IWindsorInstaller
+    public class SimpleCQRSBackendInstaller : IWindsorInstaller
     {
-        private static EventStore GetWiredEventStoreWrapper()
+        private static IStoreEvents GetWiredEventStoreWrapper(IDispatchCommits dispatcher)
         {
             var types = Assembly.GetAssembly(typeof(Event))
                 .GetTypes()
@@ -26,15 +26,18 @@ namespace SimpleCQRS.ApplicationService
             var store = Wireup.Init()
                 .UsingMongoPersistence("eventstore", new DocumentObjectSerializer())
                 .UsingSynchronousDispatchScheduler()
-                .DispatchTo(new DelegateMessageDispatcher(Program.DispatchCommit))
+                .DispatchTo(dispatcher)
                 .Build();
 
-            return new EventStore(store);
+            return store;
         }
 
         public void Install(IWindsorContainer container, IConfigurationStore store)
         {
-            container.Register(Component.For<IEventStore>().Instance(GetWiredEventStoreWrapper()),
+            container.Register(
+                Component.For<IDispatchCommits>().ImplementedBy<EventPublisher>(),
+                Component.For<IStoreEvents>().UsingFactoryMethod(c => GetWiredEventStoreWrapper(c.Resolve<IDispatchCommits>())),
+                Component.For<IEventStore, IGetAllEvents>().ImplementedBy<EventStore>(),
                 Component.For(typeof(IRepository<>)).ImplementedBy(typeof(Repository<>)),
                 Component.For<InventoryCommandHandlers>().ImplementedBy<InventoryCommandHandlers>()
                 );

@@ -87,7 +87,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BusInstaller.cs" />
+    <Compile Include="EventPublisher.cs" />
+    <Compile Include="SimpleCQRSBackendInstaller.cs" />
     <Compile Include="EventStore.cs" />
     <Compile Include="PrepareQueues.cs" />
     <Compile Include="Program.cs" />

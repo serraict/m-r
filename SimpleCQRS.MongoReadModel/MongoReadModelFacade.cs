@@ -19,6 +19,7 @@ namespace SimpleCQRS.MongoReadModel
 
         public static MongoServer GetMongoServer()
         {
+            
             //var connectionStringsSection =
             //    (ConnectionStringsSection) WebConfigurationManager.GetSection("connectionStrings");
             //var conn = connectionStringsSection.ConnectionStrings["readmodel"].ConnectionString;

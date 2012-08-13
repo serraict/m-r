@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
-using EventStore;
 using Rhino.ServiceBus;
 using Rhino.ServiceBus.Castle;
 using Rhino.ServiceBus.Hosting;
 using SimpleCQRS.Commands;
-using SimpleCQRS.Events;
 using log4net.Config;
 
 namespace SimpleCQRS.ApplicationService
@@ -17,12 +15,11 @@ namespace SimpleCQRS.ApplicationService
 
         public class BackendBootStrapper : CastleBootStrapper
         {
-
             protected override void ConfigureContainer()
             {
                 base.ConfigureContainer();
 
-                Container.Install(new BusInstaller());
+                Container.Install(new SimpleCQRSBackendInstaller());
 
                 var asm = Assembly.GetAssembly(typeof (SimpleCQRS.MongoReadModel.InventoryListView));
                 RegisterConsumersFrom(asm);
@@ -40,28 +37,12 @@ namespace SimpleCQRS.ApplicationService
             var host = new DefaultHost();
             host.Start<BackendBootStrapper>();
 
-            _bus = (IServiceBus) host.Bus;
+            _bus = (IServiceBus) host.Bus; 
 
             Console.ReadLine();
         }
-
-        public static void DispatchCommit(Commit commit)
-        {
-            try
-            {
-                foreach (var @event in commit.Events)
-                {
-                    Console.WriteLine("Notifying of {0}", @event.Body);
-                    _bus.Notify((Event) @event.Body);
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex);
-            }
-        }
     }
-    
+
     public class InventoryCommandHandler : ConsumerOf<Command>
     {
         private readonly IServiceBus _bus;
