@@ -4,7 +4,6 @@ using System.Reflection;
 using Rhino.ServiceBus;
 using Rhino.ServiceBus.Castle;
 using Rhino.ServiceBus.Hosting;
-using SimpleCQRS.Commands;
 using log4net.Config;
 
 namespace SimpleCQRS.ApplicationService
@@ -42,25 +41,4 @@ namespace SimpleCQRS.ApplicationService
             Console.ReadLine();
         }
     }
-
-    public class InventoryCommandHandler : ConsumerOf<Command>
-    {
-        private readonly IServiceBus _bus;
-        private InventoryCommandHandlers _handlers;
-
-        public InventoryCommandHandler(IServiceBus bus, InventoryCommandHandlers handlers)
-        {
-            _bus = bus;
-            _handlers = handlers;
-        }
-
-        public void Consume(Command message)
-        {
-            Console.WriteLine("Received {0}", message);
-            _handlers.HandleCommand(message);
-            _bus.Reply(message);     // reply to indicate command was handled
-            Console.WriteLine("Handled {0}", message);
-        }
-    }
-
 }
